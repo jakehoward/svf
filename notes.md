@@ -19,9 +19,13 @@ This is a letter so has newlines...",2915,,,
 - [ ] Missing lines
 - [ ] Jagged csv
 - [ ] Nonsense data (binary?)
-- [ ] Different encodings of data
+- [ ] Different encodings of data/character types
 - [ ] Security? 
 - [ ] Extremely long lines
+- [ ] Extremely large fields (possibly over multiple lines)
+- [ ] Last line doesn't end in newline
+- [ ] Windows line endings
 
 ## Design decisions
 - Validation and errors?
+- allow use of header name(s) as field selector(s)?
