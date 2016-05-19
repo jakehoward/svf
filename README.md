@@ -7,8 +7,10 @@ Intended for use as a command line tool, similar to cut. `svf` is designed to re
 If you have a csv file that looks like:
 
 ```
+----------
 census.csv
-id,first\_name,last\_name
+----------
+id,first_name,last_name
 1,"Jake, the snake",Howard
 2,Johnny,Dimblebert
 ...
@@ -16,5 +18,5 @@ id,first\_name,last\_name
 tools like `cut` aren't well placed to handle the quoted second field, `svf` takes into account *sv escaping rules.
 
 ```
-$ tail -n +2 census.csv | svf --csv -d ',' -f 2 | sort | uniq -c | sort -n > name\_popularity.txt
+$ tail -n +2 census.csv | svf --csv -d ',' -f 2 | sort | uniq -c | sort -n > name_popularity.txt
 ```
