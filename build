@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 golint 
-go test
+go test ./...
 go build
 go install
+./functional_tests.sh
+
