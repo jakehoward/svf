@@ -1,24 +1,56 @@
 package main
 
+import (
+	"errors"
+ 	"strings"
+ 	"strconv"
+)
+
 // Options is a collection of user definable program options
 type Options struct {
 	filepath string
+	delimiter string
+	writeFields []int
 }
 
-// OptionsParser represents the ability to parse program options
-type OptionsParser interface {
-	Parse([]string) *Options
-}
+// OptionsBuilder builds up Options based on strings parsed from the command line
+type OptionsBuilder struct {}
 
-// CommandLineOptionsParser is an OptionsParser designed to parse options sent as command line flags
-type CommandLineOptionsParser struct {}
-
-// Parse takes command line options and returns a domain specific object representing thier meaning
-func (c CommandLineOptionsParser) Parse(rawOptions []string) *Options {
+// Build takes strings representing fields and the delimiter and parses them into a
+// domain specific Options struct, returning an error for invalid option values
+func (b *OptionsBuilder) Build(delimiter string, fieldString string) (*Options, error) {
 	options := new(Options)
-	if len(rawOptions) > 0 {
-		options.filepath = rawOptions[0]
+	var err error
+	if delimiter != "" && len(delimiter) == 1 {
+		options.delimiter = delimiter
+	} else {
+		err = errors.New("Invalid delimiter, must be one character")
 	}
-	return options
+	
+	fields, fieldParseErr := parseWriteFields(fieldString); if fieldParseErr != nil {
+		err = fieldParseErr
+	} else {
+		options.writeFields = fields
+	}
+	return options, err
 }
 
+func parseWriteFields(fieldString string) ([]int, error) {
+	var err error
+	if fieldString == "" {
+		err = errors.New("Invalid list of fields, can't be empty")
+	}
+	fieldSymbols := strings.Split(fieldString, ",")
+	var fields []int
+	for _, symbol := range fieldSymbols {
+		field, convErr := strconv.Atoi(symbol)
+		if convErr != nil {
+			err = errors.New("Invalid field list, contains non integer")
+			break
+		} else {
+			// does this need the reassignment?
+			fields = append(fields, field)
+		}
+	}
+	return fields, err
+}
