@@ -2,8 +2,6 @@ package main
 
 import (
 	"errors"
- 	"strings"
- 	"strconv"
 )
 
 // Options is a collection of user definable program options
@@ -26,31 +24,11 @@ func (b *OptionsBuilder) Build(delimiter string, fieldString string) (*Options, 
 	} else {
 		err = errors.New("Invalid delimiter, must be one character")
 	}
-	
-	fields, fieldParseErr := parseWriteFields(fieldString); if fieldParseErr != nil {
+	fieldParser := new(FieldOptionParser)
+	fields, fieldParseErr := fieldParser.Parse(fieldString); if fieldParseErr != nil {
 		err = fieldParseErr
 	} else {
 		options.writeFields = fields
 	}
 	return options, err
-}
-
-func parseWriteFields(fieldString string) ([]int, error) {
-	var err error
-	if fieldString == "" {
-		err = errors.New("Invalid list of fields, can't be empty")
-	}
-	fieldSymbols := strings.Split(fieldString, ",")
-	var fields []int
-	for _, symbol := range fieldSymbols {
-		field, convErr := strconv.Atoi(symbol)
-		if convErr != nil {
-			err = errors.New("Invalid field list, contains non integer")
-			break
-		} else {
-			// does this need the reassignment?
-			fields = append(fields, field)
-		}
-	}
-	return fields, err
 }

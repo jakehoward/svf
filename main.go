@@ -37,7 +37,6 @@ func run(optionsBuilder *OptionsBuilder) {
 		var values []string
 		for index, value := range strings.Split(scanner.Text(), options.delimiter) {
 			if contains(options.writeFields, index + 1) {
-				// does this need the reassignment?
 				values = append(values, value)
 			}
 		}

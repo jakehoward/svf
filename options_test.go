@@ -35,34 +35,7 @@ func TestOptionsBuilderReturnsErrorIfPassedADelimiterLongerThanOneCharacter(t *t
 	}
 }
 
-func TestOptionsBuilderReturnsOptionsWithListOfFieldsSimpleCase(t *testing.T) {
-	optBuilder := new(OptionsBuilder)
-	fieldString := "1"
-	options, _ := optBuilder.Build(",", fieldString)
-	if !reflect.DeepEqual(options.writeFields, []int{1}) {
-		t.Errorf("Expected options to have write fields %x, but actually got %x", []int{1}, options.writeFields)
-	}
-}
-
-func TestOptionsBuilderReturnsErrorWhenPassedEmtpyFieldList(t *testing.T) {
-	optBuilder := new(OptionsBuilder)
-	fieldString := ""
-	_, err := optBuilder.Build(",", fieldString)
-	if err == nil {
-		t.Errorf("Expected option builder to return an error when passed an empty field string")
-	}
-}
-
-func TestOptionsBuilderReturnsErrorWhenPassedInvalidContent(t *testing.T) {
-	optBuilder := new(OptionsBuilder)
-	fieldString := "a"
-	_, err := optBuilder.Build(",", fieldString)
-	if err == nil {
-		t.Errorf("Expected option builder to return an error when passed an invalid field string")
-	}
-}
-
-func TestOptionsBuilderHandlesMultipleFields(t *testing.T) {
+func TestOptionsBuilderReturnsFields(t *testing.T) {
 	optBuilder := new(OptionsBuilder)
 	fieldString := "3,6"
 	options, _ := optBuilder.Build(",", fieldString)
