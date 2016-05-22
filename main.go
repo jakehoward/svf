@@ -33,14 +33,19 @@ func run(optionsBuilder *OptionsBuilder) {
 	}
 	scanner := bufio.NewScanner(input)
 	writer := bufio.NewWriter(os.Stdout)
+	recordParser := new(RecordParser)
 	for scanner.Scan() {
-		var values []string
-		for index, value := range strings.Split(scanner.Text(), options.delimiter) {
+		var fieldsToWrite []string
+		record, err := recordParser.Parse(scanner.Text(), options.delimiter); if err != nil {
+			fmt.Println("Error occurred parsing record")
+			os.Exit(1);
+		}
+		for index, field := range record.fields {
 			if contains(options.writeFields, index + 1) {
-				values = append(values, value)
+				fieldsToWrite = append(fieldsToWrite, field)
 			}
 		}
-		fmt.Fprintln(writer, strings.Join(values, options.delimiter))
+		fmt.Fprintln(writer, strings.Join(fieldsToWrite, options.delimiter))
 		writer.Flush()
 	}
 }

@@ -3,12 +3,16 @@ package main
 import (
 	"errors"
 )
+
+// Record represents a row in a *sv file
 type Record struct {
 	fields []string
 }
 
+// RecordParser takes the raw representation of a *sv record and parses it into a list of fields
 type RecordParser struct {}
 
+// Parse takes a row of *sv file and, taking into account escaping rules, returns a record representing the row
 func (r *RecordParser) Parse(recordString string, delimiter string) (*Record, error) {
 	var err error
 	record := new(Record)
