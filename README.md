@@ -1,4 +1,4 @@
-# svf - separated values files #
+# svf - separated value files #
 
 `svf` is `cut` for separated value files. Designed to read csv and tsv files so they can be used in bash pipelines.
 
