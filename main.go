@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"bufio"
 	"os"
-	"strings"
 	flag "github.com/ogier/pflag"
 )
 
@@ -34,6 +33,7 @@ func run(optionsBuilder *OptionsBuilder) {
 	scanner := bufio.NewScanner(input)
 	writer := bufio.NewWriter(os.Stdout)
 	recordParser := new(RecordParser)
+	recordWriter := new(RecordWriter)
 	for scanner.Scan() {
 		var fieldsToWrite []string
 		record, err := recordParser.Parse(scanner.Text(), options.delimiter); if err != nil {
@@ -45,7 +45,11 @@ func run(optionsBuilder *OptionsBuilder) {
 				fieldsToWrite = append(fieldsToWrite, field)
 			}
 		}
-		fmt.Fprintln(writer, strings.Join(fieldsToWrite, options.delimiter))
+		recordToWrite, err := recordWriter.MakeRecord(fieldsToWrite, options.delimiter); if err != nil {
+			fmt.Println("Error occurred writing a record")
+			os.Exit(1)
+		}
+		fmt.Fprintln(writer, recordToWrite)
 		writer.Flush()
 	}
 }
