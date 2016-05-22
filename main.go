@@ -10,10 +10,11 @@ import (
 func main() {
 	var delimiter = flag.StringP("delimiter", "d", ",", "Character used to split fields")
 	var fields = flag.StringP("fields", "f", "", "Mandatory: Fields you would like printed to stdout, e.g. -f1,3,6")
+	var filepath = flag.StringP("infile", "i", "", "File from which to read, if not piping to stdin")
 	flag.Parse()
 	
 	optionsBuilder := new(OptionsBuilder)
-	options, err := optionsBuilder.Build(*delimiter, *fields); if err != nil {
+	options, err := optionsBuilder.Build(*delimiter, *fields, *filepath); if err != nil {
 		fmt.Fprintln(os.Stderr, "Error parsing options")
 		os.Exit(1)
 	}
@@ -24,15 +25,7 @@ func main() {
 }
 
 func run(options *Options, recordParser *RecordParser, recordWriter *RecordWriter) {
-	input := os.Stdin
-	if options.filepath != "" {
-		file, err := os.Open(options.filepath)
-		if err != nil {
-			os.Exit(1)
-		}
-		input = file
-	}
-	scanner := bufio.NewScanner(input)
+	scanner := bufio.NewScanner(options.inputSource)
 	writer := bufio.NewWriter(os.Stdout)
 	for scanner.Scan() {
 		var fieldsToWrite []string
