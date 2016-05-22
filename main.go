@@ -8,20 +8,22 @@ import (
 )
 
 func main() {
-	optionsBuilder := new(OptionsBuilder)
-	run(optionsBuilder)
-}
-
-func run(optionsBuilder *OptionsBuilder) {
- 	var delimiter = flag.StringP("delimiter", "d", ",", "Character used to split fields")
-	var fields = flag.StringP("fields", "f", "", "Fields you would like printed to stdout")
+	var delimiter = flag.StringP("delimiter", "d", ",", "Character used to split fields")
+	var fields = flag.StringP("fields", "f", "", "Mandatory: Fields you would like printed to stdout, e.g. -f1,3,6")
 	flag.Parse()
 	
-	options, err := optionsBuilder.Build(*delimiter, *fields)
-	if err != nil {
+	optionsBuilder := new(OptionsBuilder)
+	options, err := optionsBuilder.Build(*delimiter, *fields); if err != nil {
+		fmt.Fprintln(os.Stderr, "Error parsing options")
 		os.Exit(1)
 	}
-	
+
+	recordParser := new(RecordParser)
+	recordWriter := new(RecordWriter)
+	run(options, recordParser, recordWriter)
+}
+
+func run(options *Options, recordParser *RecordParser, recordWriter *RecordWriter) {
 	input := os.Stdin
 	if options.filepath != "" {
 		file, err := os.Open(options.filepath)
@@ -32,8 +34,6 @@ func run(optionsBuilder *OptionsBuilder) {
 	}
 	scanner := bufio.NewScanner(input)
 	writer := bufio.NewWriter(os.Stdout)
-	recordParser := new(RecordParser)
-	recordWriter := new(RecordWriter)
 	for scanner.Scan() {
 		var fieldsToWrite []string
 		record, err := recordParser.Parse(scanner.Text(), options.delimiter); if err != nil {
