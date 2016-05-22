@@ -1,6 +1,6 @@
-# WIP: svf - separated values file #
+# svf - separated values files #
 
-Intended for use as a command line tool, similar to cut. `svf` is designed to read csv and tsv files so they can painlessly be used in bash pipelines.
+`svf` is `cut` for separated value files. Designed to read csv and tsv files so they can be used in bash pipelines.
 
 ## Examples ##
 
@@ -18,5 +18,5 @@ id,first_name,last_name
 tools like `cut` aren't well placed to handle the quoted second field, `svf` takes into account *sv escaping rules.
 
 ```
-$ tail -n +2 census.csv | svf --csv -d ',' -f 2 | sort | uniq -c | sort -n > name_popularity.txt
+$ tail -n +2 census.csv | svf -d , -f 2 | sort | uniq -c | sort -n > name_popularity.txt
 ```

@@ -15,7 +15,7 @@
 ## Test cases
 - [ ] ,1,2,  3  ,"I'm a, nasty, csv file!",  "Jake ""the snake"" Howard"  ,"Dear sir,
 This is a letter so has newlines...",2915,,,
-- [ ] Multiple newines
+- [ ] Multiple newlines
 - [ ] Missing lines
 - [ ] Jagged csv
 - [ ] Nonsense data (binary?)
