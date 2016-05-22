@@ -37,7 +37,7 @@ func run(options *Options, recordParser *RecordParser, recordWriter *RecordWrite
 	for scanner.Scan() {
 		var fieldsToWrite []string
 		record, err := recordParser.Parse(scanner.Text(), options.delimiter); if err != nil {
-			fmt.Println("Error occurred parsing record")
+			fmt.Fprintln(os.Stderr, "Error occurred parsing record")
 			os.Exit(1);
 		}
 		for index, field := range record.fields {
@@ -46,7 +46,7 @@ func run(options *Options, recordParser *RecordParser, recordWriter *RecordWrite
 			}
 		}
 		recordToWrite, err := recordWriter.MakeRecord(fieldsToWrite, options.delimiter); if err != nil {
-			fmt.Println("Error occurred writing a record")
+			fmt.Fprintln(os.Stderr, "Error occurred writing a record")
 			os.Exit(1)
 		}
 		fmt.Fprintln(writer, recordToWrite)
