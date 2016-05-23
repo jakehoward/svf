@@ -1,14 +1,15 @@
 package main
 
 import (
-	"testing"
-	"reflect"
 	"os"
+	"reflect"
+	"testing"
 )
+
 /*
  * OptBuilder currently returns the options even if there's an error, should probably change that
 * Opt builder probably needs to delegate field parsing to a standalone type/testable entity
- */
+*/
 var optBuilder = new(OptionsBuilder)
 
 func TestOptionsBuilderReturnsOptionsWithDelimiter(t *testing.T) {
@@ -39,7 +40,7 @@ func TestOptionsBuilderReturnsFields(t *testing.T) {
 	fieldString := "3,6"
 	options, _ := optBuilder.Build(",", fieldString, "")
 	if !reflect.DeepEqual(options.writeFields, []int{3, 6}) {
-		t.Errorf("Expected write fields to be %x, but they were actually %x", []int{3,6}, options.writeFields)
+		t.Errorf("Expected write fields to be %x, but they were actually %x", []int{3, 6}, options.writeFields)
 	}
 }
 

@@ -5,7 +5,7 @@ import (
 )
 
 // RecordWriter makes a record given fields
-type RecordWriter struct {}
+type RecordWriter struct{}
 
 // MakeRecord takes a list of fields and a delimiter and returns a string joining them and escaping special characters
 func (r *RecordWriter) MakeRecord(fields []string, delimiter string) (string, error) {
@@ -14,7 +14,7 @@ func (r *RecordWriter) MakeRecord(fields []string, delimiter string) (string, er
 	for _, field := range fields {
 		escapedFields = append(escapedFields, escapeField(field, delimiter))
 	}
-	return strings.Join(escapedFields, delimiter), err	
+	return strings.Join(escapedFields, delimiter), err
 }
 
 func escapeField(field string, delimiter string) string {

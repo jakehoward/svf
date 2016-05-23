@@ -1,10 +1,9 @@
 package main
 
 import (
-	"testing"
 	"reflect"
+	"testing"
 )
-
 
 var recParser = new(RecordParser)
 
@@ -28,7 +27,7 @@ func TestRecordParserReturnsCorrectRecordGivenEscapedDelimiter(t *testing.T) {
 
 func TestRecordParserReturnsCorrectRecordGivenEscapedEscapeChars(t *testing.T) {
 	record, _ := recParser.Parse(",hi,\"\"\"Hello\"\" said the man\",bye", ",")
-	expected := []string{"","hi","\"Hello\" said the man", "bye"}
+	expected := []string{"", "hi", "\"Hello\" said the man", "bye"}
 	got := record.fields
 	if !reflect.DeepEqual(expected, got) {
 		t.Errorf("Expected %v, got %v", expected, got)
@@ -37,7 +36,7 @@ func TestRecordParserReturnsCorrectRecordGivenEscapedEscapeChars(t *testing.T) {
 
 func TestRecordParserReturnsCorrectRecordGivenEscapedEscapeAndDelimiterChars(t *testing.T) {
 	record, _ := recParser.Parse(",hi,\"\"\"Goodbye\"\", said the other chap\",cheerio", ",")
-	expected := []string{"","hi","\"Goodbye\", said the other chap", "cheerio"}
+	expected := []string{"", "hi", "\"Goodbye\", said the other chap", "cheerio"}
 	got := record.fields
 	if !reflect.DeepEqual(expected, got) {
 		t.Errorf("Expected %v, got %v", expected, got)

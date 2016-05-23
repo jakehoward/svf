@@ -8,7 +8,7 @@ import (
 
 // FieldOptionParser can read the raw field string of user cmd line options
 // and translate it into the fields to be written on output
-type FieldOptionParser struct {}
+type FieldOptionParser struct{}
 
 // Parse takes the raw string representing the fields to write out and
 // turns it into either a list of fields or an error

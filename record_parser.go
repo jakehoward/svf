@@ -10,7 +10,7 @@ type Record struct {
 }
 
 // RecordParser takes the raw representation of a *sv record and parses it into a list of fields
-type RecordParser struct {}
+type RecordParser struct{}
 
 // Parse takes a row of *sv file and, taking into account escaping rules, returns a record representing the row
 func (r *RecordParser) Parse(recordString string, delimiter string) (*Record, error) {
@@ -25,7 +25,8 @@ func (r *RecordParser) Parse(recordString string, delimiter string) (*Record, er
 	recordStringRunes := stringToRuneSlice(recordString)
 	for i, c := range recordStringRunes {
 		if c == escapeRune {
-			oneAhead, err := peekAheadOne(recordStringRunes, i); if err == nil {
+			oneAhead, err := peekAheadOne(recordStringRunes, i)
+			if err == nil {
 				if inEscape && oneAhead == escapeRune {
 					field = append(field, c)
 				}
@@ -39,16 +40,16 @@ func (r *RecordParser) Parse(recordString string, delimiter string) (*Record, er
 		}
 	}
 	fields = append(fields, string(field))
-	
+
 	record.fields = fields
 	return record, err
 }
 
 func peekAheadOne(rs []rune, index int) (rune, error) {
 	var err error
-	var value rune 
-	if len(rs) > index + 1 {
-		value = rs[index + 1]
+	var value rune
+	if len(rs) > index+1 {
+		value = rs[index+1]
 	} else {
 		err = errors.New("Can't peek ahead, at end of rune slice")
 	}

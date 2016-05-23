@@ -1,11 +1,12 @@
 package main
 
 import (
-	"testing"
 	"reflect"
+	"testing"
 )
 
 var fieldParser = new(FieldOptionParser)
+
 func TestFieldParserReturnsCorrectFieldWhenPassedOneField(t *testing.T) {
 	fieldString := "1"
 	fields, _ := fieldParser.Parse(fieldString)
@@ -34,6 +35,6 @@ func TestFieldParserHandlesMultipleFields(t *testing.T) {
 	fieldString := "3,6"
 	fields, _ := fieldParser.Parse(fieldString)
 	if !reflect.DeepEqual(fields, []int{3, 6}) {
-		t.Errorf("Expected write fields to be %x, but they were actually %x", []int{3,6}, fields)
+		t.Errorf("Expected write fields to be %x, but they were actually %x", []int{3, 6}, fields)
 	}
 }

@@ -5,6 +5,7 @@ import (
 )
 
 var recordWriter = new(RecordWriter)
+
 func TestRecordWriterCreatesSimpleRowCorrectly(t *testing.T) {
 	record, _ := recordWriter.MakeRecord([]string{"1", "2", "3"}, ":")
 	if record != "1:2:3" {
@@ -29,4 +30,3 @@ func TestRoundRobinWithRecordParser(t *testing.T) {
 		t.Errorf("Expected start and end to match but, start: %x, end: %x", start, end)
 	}
 }
-	
