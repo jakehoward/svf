@@ -15,13 +15,16 @@ id,first_name,last_name
 2,Johnny,Dimblebert
 ...
 ```
+
 tools like `cut` aren't well placed to handle the quoted second field, `svf` takes into account *sv escaping rules.
 
 ```
-$ tail -n +2 census.csv | svf -d , -f 2 | sort | uniq -c | sort -n > name_popularity.txt
+$ < census.csv | svf -d , -f 2
 ```
 
-## Workaround for missing column name feature (coming soon)
+Output:
+
 ```
-< data.csv | svf -d ',' -f $(< data.csv | python -c "import sys; x = sys.stdin.read(); print int(x.strip().split('COLUMN_NAME')[0].count(',')) + 1")
-```
+first_name
+"Jake, the snake"
+Johnny
