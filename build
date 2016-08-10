@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-golint 
-go fmt
+golint ./...
+go fmt ./...
 go test ./...
 go build
 go install
