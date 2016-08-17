@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	// "runtime/pprof"
 	"strconv"
 	"strings"
 
@@ -13,6 +14,10 @@ import (
 
 var fieldString string
 var delimiterString string
+
+/* Profiling code */
+// var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+/* Profiling code */
 
 func init() {
 	flag.StringVarP(&fieldString, "fields", "f", "", "fields to output, e.g. 1-3,7,9,14-20")
@@ -73,12 +78,27 @@ func max(xs []int) int {
 }
 
 func main() {
+	/* Profiling code */
+	// if *cpuprofile != "" {
+	// 	f, err := os.Create(*cpuprofile)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	pprof.StartCPUProfile(f)
+	// 	defer pprof.StopCPUProfile()
+	// }
+	/* Profiling code */
+
 	i := inputSource(flag.Args())
 	fields := parseFieldString(fieldString)
 
 	r := csv.NewReader(i)
 	r.Comma = parseDelimiterString(delimiterString)
 	r.FieldsPerRecord = -1 // Allow variable # of fields.
+
+	w := csv.NewWriter(os.Stdout)
+	w.Comma = r.Comma
+
 	for {
 		record, err := r.Read()
 		if err == io.EOF {
@@ -96,14 +116,12 @@ func main() {
 			outRecord = append(outRecord, record[i-1])
 		}
 
-		w := csv.NewWriter(os.Stdout)
-		w.Comma = r.Comma
 		if err := w.Write(outRecord); err != nil {
 			log.Fatalln("error writing record to csv:", err)
 		}
-		w.Flush()
-		if err := w.Error(); err != nil {
-			log.Fatalln("error writing csv:", err)
-		}
+	}
+	w.Flush()
+	if err := w.Error(); err != nil {
+		log.Fatalln("error writing csv:", err)
 	}
 }
