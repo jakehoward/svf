@@ -1,5 +1,11 @@
 # Notes
 
+## To Do ##
+- Allow option for inserting blanks when row has no value (i.e. when jagged *sv)
+- profiling (performance)
+- Add support for non newline record delimiter
+- Default delimiter to tab character not comma?? (because it's harder to type in bash)
+
 ## *sv standards
 - https://en.wikipedia.org/wiki/Delimiter-separated_values
 
