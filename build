@@ -9,4 +9,3 @@ go vet ./...
 go build
 go install
 ./functional_tests.sh
-
