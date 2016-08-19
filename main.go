@@ -6,75 +6,26 @@ import (
 	"log"
 	"os"
 	// "runtime/pprof"
-	"strconv"
-	"strings"
 
 	flag "github.com/ogier/pflag"
 )
-
-var fieldString string
-var delimiterString string
 
 /* Profiling code */
 // var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 /* Profiling code */
 
+var fieldString string
+var fields []int
+var delimiterString string
+
 func init() {
 	flag.StringVarP(&fieldString, "fields", "f", "", "fields to output, e.g. 1-3,7,9,14-20")
 	flag.StringVarP(&delimiterString, "delimiter", "d", ",", "delimiter char on which to split fields")
 	flag.Parse()
-}
-
-func inputSource(args []string) io.Reader {
-	var input io.Reader
-	if len(args) == 0 {
-		input = os.Stdin
-	} else if len(args) == 1 {
-		f, err := os.Open(args[0])
-		if err != nil {
-			log.Fatalf("Error opening file: %v", err)
-		}
-		input = f
-	} else {
-		log.Fatalf("Please specify one argument for input file, %d specififed: %v", len(args), args)
+	var err error
+	if fields, err = parseFieldString(fieldString); err != nil {
+		log.Fatal(err)
 	}
-	return input
-}
-
-func parseFieldString(fs string) []int {
-	var fieldNums []int
-	if len(fs) == 0 {
-		return fieldNums
-	}
-	fields := strings.Split(fs, ",")
-	for _, f := range fields {
-		i, err := strconv.Atoi(f)
-		if err != nil {
-			log.Fatalf("Fields can only be numerical values: %s", f)
-		}
-		fieldNums = append(fieldNums, i)
-	}
-	return fieldNums
-}
-
-func parseDelimiterString(d string) rune {
-	if len(d) != 1 {
-		log.Fatalf("Delimiter can only be one character, got: %s", d)
-	}
-	return []rune(d)[0]
-}
-
-func max(xs []int) int {
-	if len(xs) == 0 {
-		log.Fatalf("Internal error: E1")
-	}
-	var max = xs[0]
-	for _, x := range xs {
-		if x > max {
-			max = x
-		}
-	}
-	return max
 }
 
 func main() {
@@ -90,7 +41,6 @@ func main() {
 	/* Profiling code */
 
 	i := inputSource(flag.Args())
-	fields := parseFieldString(fieldString)
 
 	r := csv.NewReader(i)
 	r.Comma = parseDelimiterString(delimiterString)
@@ -124,4 +74,40 @@ func main() {
 	if err := w.Error(); err != nil {
 		log.Fatalln("error writing csv:", err)
 	}
+}
+
+func inputSource(args []string) io.Reader {
+	var input io.Reader
+	if len(args) == 0 {
+		input = os.Stdin
+	} else if len(args) == 1 {
+		f, err := os.Open(args[0])
+		if err != nil {
+			log.Fatalf("Error opening file: %v", err)
+		}
+		input = f
+	} else {
+		log.Fatalf("Please specify one argument for input file, %d specififed: %v", len(args), args)
+	}
+	return input
+}
+
+func parseDelimiterString(d string) rune {
+	if len(d) != 1 {
+		log.Fatalf("Delimiter can only be one character, got: %s", d)
+	}
+	return []rune(d)[0]
+}
+
+func max(xs []int) int {
+	if len(xs) == 0 {
+		log.Fatalf("Internal error: E1")
+	}
+	var max = xs[0]
+	for _, x := range xs {
+		if x > max {
+			max = x
+		}
+	}
+	return max
 }
