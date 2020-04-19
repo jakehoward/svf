@@ -1,4 +1,5 @@
-use std::io::{self, Read};
+use csv::ReaderBuilder;
+use std::io;
 use structopt::StructOpt;
 
 /// Read newline delimited data from stdin and structurally parse based on delimiters
@@ -6,7 +7,7 @@ use structopt::StructOpt;
 struct Cli {
     /// The character delimiter used to split a line into fields
     #[structopt(short = "d", long = "delimiter", default_value = ",")]
-    delim: String,
+    delimiter: String,
 
     /// The fields you would like to return. E.g. for the first, fifth to seventh inclusive, and tenth onwards: '1,5-7,10-' (spaces will be ignored)
     #[structopt(short = "f", long = "fields")]
@@ -21,21 +22,31 @@ struct Cli {
     zero_index: bool,
 }
 
+struct SvfBufReader {
+    buffer: Vec<u8>
+}
+
+impl SvfBufReader {
+    fn new() -> SvfBufReader {
+        // TODO: check the performance impact
+        SvfBufReader { buffer: Vec::with_capacity(1000) }
+    }
+
+    // fn read_record(&self) {
+        // vec!["testing", "testing", "123"]
+    // }
+}
+
 fn main() -> io::Result<()> {
     let args = Cli::from_args();
-    // println!("Args: {:?}", args);
 
-    let mut content = String::new();
-    match io::stdin().read_to_string(&mut content) {
-        Ok(_) => (),
-        Err(e) => return Err(e),
+    let mut rdr = ReaderBuilder::new()
+        .delimiter(args.delimiter.as_bytes()[0])
+        .from_reader(io::stdin());
+
+    for record in rdr.records() {
+        println!("Record is: {:?}", record);
     }
-    // println!("{}", content);
 
-    // println!("{:?}", "a,b,c,d".split(&args.delim).collect::<Vec<&str>>());
-
-    let lines: Vec<&str> = content.lines().collect();
-    let items: Vec<Vec<&str>> = lines.into_iter().map(|x| x.split(&args.delim).collect()).collect();
-    println!("{:?}", items);
     Ok(())
 }
