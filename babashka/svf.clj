@@ -9,8 +9,8 @@
 (require '[clojure.data.csv :as csv])
 
 (def cli-opts
-  {:delimeter {:alias :d
-               ;; :corece {:delimeter :string}
+  {:delimiter {:alias :d
+               ;; :corece {:delimiter :string}
                :desc "The string value used to split a row into columns, defaults to comma ','"
                :require true
                :default ","}
@@ -96,14 +96,14 @@
   )
 
 ;; slightly confusing having same name as cli/
-(defn parse-opts [{:keys [delimeter fields]}]
-  {:delimeter delimeter
+(defn parse-opts [{:keys [delimiter fields]}]
+  {:delimiter delimiter
    :fields (parse-fields fields)})
 
 ;; bb -m svf -d ';' -f '1-'
 (defn -main [& args]
   (let [opts                       (cli/parse-opts *command-line-args* {:spec cli-opts})
-        {:keys [delimeter fields]} (parse-opts opts)
+        {:keys [delimiter fields]} (parse-opts opts)
         {:keys [idxs and-rest]}    fields
                                    ;; assumes idxs are sorted asc
         last-idx                   (last idxs)
@@ -122,12 +122,12 @@
 
     (when (contains? opts :report)
       ;; lazy so only parses one
-      (let [rows     (csv/read-csv *in* :separator (first delimeter))]
+      (let [rows     (csv/read-csv *in* :separator (first delimiter))]
         (report (first rows))
         (System/exit 0)))
 
-    (let [rows     (csv/read-csv *in* :separator (first delimeter))
+    (let [rows     (csv/read-csv *in* :separator (first delimiter))
           out-rows (->> rows
                         (map filter-row))]
-      (csv/write-csv *out* out-rows :separator (first delimeter)))))
+      (csv/write-csv *out* out-rows :separator (first delimiter)))))
 
