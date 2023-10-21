@@ -85,27 +85,24 @@
 
 ;; bb -m svf -d ';' -f '1-'
 (defn -main [& args]
-  (let [opts                     (cli/parse-opts *command-line-args* {:spec cli-opts})
-        {:keys [fields]}         (parse-opts opts)
-        {:keys [idxs and-rest]}  fields
-        last-idx                 (last idxs)
-        idxs-set                 (set idxs)
-        selected-idx?            (fn [idx] (or (idxs-set idx) (and and-rest (> idx last-idx))))
-                                 ;; cleaner way to filter with idx?
-        filter-row               (fn [row] (keep (fn [[idx item]]
-                                                   (when (selected-idx? idx) item))
-                                                 (map (fn [idx item] [idx item])
-                                                      (iterate inc 0) row)))]
+  (let [opts                       (cli/parse-opts *command-line-args* {:spec cli-opts})
+        {:keys [delimeter fields]} (parse-opts opts)
+        {:keys [idxs and-rest]}    fields
+        last-idx                   (last idxs)
+        idxs-set                   (set idxs)
+        selected-idx?              (fn [idx] (or (idxs-set idx) (and and-rest (> idx last-idx))))
+                                   ;; cleaner way to filter with idx?
+        filter-row                 (fn [row] (keep (fn [[idx item]]
+                                                     (when (selected-idx? idx) item))
+                                                   (map (fn [idx item] [idx item])
+                                                        (iterate inc 0) row)))]
 
     (when (contains? opts :help)
       (help)
       (System/exit 0))
 
-    (let [rows     (csv/read-csv *in*)
+    (let [rows     (csv/read-csv *in* :separator (first delimeter))
           out-rows (->> rows
                         (map filter-row))]
-      (csv/write-csv *out* out-rows))
-
-    ;; (println "opts: " (parse-opts opts))
-    ))
+      (csv/write-csv *out* out-rows :separator (first delimeter)))))
 
