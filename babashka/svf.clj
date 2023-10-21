@@ -1,4 +1,5 @@
-(ns svf)
+(ns svf
+  (:require [clojure.string :as str]))
 
 ;; To Dev (emacs)
 ;; - `bb --nrepl-server`
@@ -16,16 +17,32 @@
    :fields {:alias :f
             :desc
             "The fields you want, 1 indexed split by comma, range by hyphen.
-                   e.g. '1,2-5,8-' => [1,2,3,4,5,8,9...]. Defaults to '1-' (all)"
+                     e.g. '1,2-5,8-' => [1,2,3,4,5,8,9...]. Defaults to '1-' (all)"
             :require true
             :coerce :string
             :default "1-"}
+   :report {:alias :r
+            :desc "Column count and (assumes header row) mapping of column to index"
+            :require false}
    :help {:alias :h
           :desc "Print usage docs"
           :require false}})
 
 (defn help []
   (println (cli/format-opts {:spec cli-opts})))
+
+(defn report [head-row]
+  (let [num-cols (count head-row)
+        max-len  (apply max (map count head-row))
+        ;; gross!
+        pad-left (fn [s] (-> (java.lang.StringBuilder.)
+                             (.append (str/join "" (take (- max-len (count s)) (repeat " "))))
+                             (.append s)
+                             .toString))]
+    (println "Num columns:" num-cols)
+    (println "column:idx")
+    (doseq [[col idx] (map (fn [c i] [c i]) head-row (iterate inc 1))]
+      (println (str (pad-left col) ": " idx)))))
 
 (defn token-to-zero-idx-fields [token]
   (let [[lhs rhs] (clojure.string/split token #"-")]
@@ -88,18 +105,26 @@
   (let [opts                       (cli/parse-opts *command-line-args* {:spec cli-opts})
         {:keys [delimeter fields]} (parse-opts opts)
         {:keys [idxs and-rest]}    fields
+                                   ;; assumes idxs are sorted asc
         last-idx                   (last idxs)
         idxs-set                   (set idxs)
+        truncate-row               (fn [row] (if-not and-rest (take (inc last-idx) row) row))
         selected-idx?              (fn [idx] (or (idxs-set idx) (and and-rest (> idx last-idx))))
                                    ;; cleaner way to filter with idx?
         filter-row                 (fn [row] (keep (fn [[idx item]]
                                                      (when (selected-idx? idx) item))
                                                    (map (fn [idx item] [idx item])
-                                                        (iterate inc 0) row)))]
+                                                        (iterate inc 0) (truncate-row row))))]
 
     (when (contains? opts :help)
       (help)
       (System/exit 0))
+
+    (when (contains? opts :report)
+      ;; lazy so only parses one
+      (let [rows     (csv/read-csv *in* :separator (first delimeter))]
+        (report (first rows))
+        (System/exit 0)))
 
     (let [rows     (csv/read-csv *in* :separator (first delimeter))
           out-rows (->> rows
