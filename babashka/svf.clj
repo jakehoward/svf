@@ -5,6 +5,7 @@
 ;; - M-x cider-connect-clj
 
 (require '[babashka.cli :as cli])
+(require '[clojure.data.csv :as csv])
 
 (def cli-opts
   {:delimeter {:alias :d
@@ -17,6 +18,7 @@
             "The fields you want, 1 indexed split by comma, range by hyphen.
                    e.g. '1,2-5,8-' => [1,2,3,4,5,8,9...]. Defaults to '1-' (all)"
             :require true
+            :coerce :string
             :default "1-"}
    :help {:alias :h
           :desc "Print usage docs"
@@ -44,9 +46,11 @@
 (defn is-open? [token]
   (= (last token) \-))
 
+
+;; todo: currently allows 1-,2 which is a bit iffy
 (defn parse-fields [fields-string]
   (cond (= "1-" fields-string)
-        {:fields [0] :and-rest true}
+        {:idxs [0] :and-rest true}
 
         :else
         (let [ans
@@ -55,18 +59,18 @@
                      and-rest  false]
                 (if-let [token (first tokens)]
                   (recur (rest tokens) (into z-idx-fs (token-to-zero-idx-fields token)) (is-open? token))
-                  {:fields z-idx-fs :and-rest and-rest}))]
+                  {:idxs z-idx-fs :and-rest and-rest}))]
 
-          (if (and (seq (:fields ans))
-                   (apply < (:fields ans))
-                   (= (count (set (:fields ans))) (count (:fields ans)))) ;; sorted, asc
+          (if (and (seq (:idxs ans))
+                   (apply < (:idxs ans))
+                   (= (count (set (:idxs ans))) (count (:idxs ans)))) ;; sorted, asc
             ans
 
             (throw (java.lang.Exception.
                     (str "Must be strictly sorted and unique fields: " fields-string)))))))
 
 (comment
-  (let [exs ["1-" "1,2" "3,8", "9-10" "7-" "1,4-6,9-" "1,3,3" "9-8" "99,1-3,10-"]]
+  (let [exs ["1-" "1-,2" "3,8", "9-10" "7-" "1,4-6,9-" "1,3,3" "9-8" "99,1-3,10-"]]
     (for [ex exs]
       (try
         (println "ex:" ex "parsed:" (parse-fields ex))
@@ -74,18 +78,34 @@
   ;
   )
 
+;; slightly confusing having same name as cli/
 (defn parse-opts [{:keys [delimeter fields]}]
   {:delimeter delimeter
    :fields (parse-fields fields)})
 
 ;; bb -m svf -d ';' -f '1-'
 (defn -main [& args]
-  (println "args were:" args)
-  (let [opts (cli/parse-opts *command-line-args* {:spec cli-opts})]
+  (let [opts                     (cli/parse-opts *command-line-args* {:spec cli-opts})
+        {:keys [fields]}         (parse-opts opts)
+        {:keys [idxs and-rest]}  fields
+        last-idx                 (last idxs)
+        idxs-set                 (set idxs)
+        selected-idx?            (fn [idx] (or (idxs-set idx) (and and-rest (> idx last-idx))))
+                                 ;; cleaner way to filter with idx?
+        filter-row               (fn [row] (keep (fn [[idx item]]
+                                                   (when (selected-idx? idx) item))
+                                                 (map (fn [idx item] [idx item])
+                                                      (iterate inc 0) row)))]
 
     (when (contains? opts :help)
       (help)
       (System/exit 0))
 
-    (println "opts: " (parse-opts opts))))
+    (let [rows     (csv/read-csv *in*)
+          out-rows (->> rows
+                        (map filter-row))]
+      (csv/write-csv *out* out-rows))
+
+    ;; (println "opts: " (parse-opts opts))
+    ))
 

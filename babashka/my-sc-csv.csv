@@ -1,0 +1,4 @@
+foo;bar;baz
+1;2;3
+"a;b";"c;d";"e;f"
+"""quote""";5;6
